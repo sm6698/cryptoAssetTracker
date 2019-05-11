@@ -8,9 +8,9 @@ from modules.cryptoTrackerBinance import *
 
 # Static Constants
 # time difference in Coinbase Report
-VALID_COINS = ['BTC','ETH']
-DISPOSITION_COMMANDS = [ 'WALLET', 'PURCHASE', 'DONATE', 'EXPENSE']
-EXCHANGE_FILETYPES = [ 'COINBASE-COIN', 'COINBASE-GDAX', 'BINANCE-DEPOSIT', 'BINANCE-TRADEHISTORY', 'BINANCE-WITHDRAWAL']
+VALID_COINS = ['BTC', 'ETH']
+DISPOSITION_COMMANDS = ['WALLET', 'PURCHASE', 'DONATE', 'EXPENSE']
+EXCHANGE_FILETYPES = ['COINBASE-COIN', 'COINBASE-GDAX', 'BINANCE-DEPOSIT', 'BINANCE-TRADEHISTORY', 'BINANCE-WITHDRAWAL']
 
 # globals variables
 dataBase = "database.db"  # type: str
@@ -21,7 +21,7 @@ def import_file_list(exchange_files):
     with open(exchange_files, 'r') as fin:  # `with` statement available in 2.5+
         reader = csv.reader(fin)
         for item in reader:
-            # check to see if it is a comment
+            # check to see if item is a comment
             if item[0].lstrip()[0] != '#':
                 file_path =item[1].lstrip()
                 exchange_file = Path(file_path)
@@ -33,7 +33,7 @@ def import_file_list(exchange_files):
                         print ('Invalid filetype:', item[0])
                         exit(1)
                 else:
-                    print ('file not found:',item[1])
+                    print ('file not found:', item[1])
                     exit(1)
     return file_list
 
@@ -41,6 +41,7 @@ def import_file_list(exchange_files):
 def create_wallet_table(cur, con, coin_tx_list, coin_from_exchange, coin_to_exchange):
     ether_exchange_suspect = []
     wallet_id_number = 0
+    # tract transaction IDs that move from exchanges
     for tx_id in coin_from_exchange:
         if "BTC" in coin_tx_list[tx_id].type:
             btc_process_trans_id(tx_id, cur, con, coin_tx_list, coin_from_exchange, coin_to_exchange, wallet_id_number)
@@ -55,9 +56,11 @@ def create_wallet_table(cur, con, coin_tx_list, coin_from_exchange, coin_to_exch
 
 def process_user_commands(cur, con):
     command = ['']
+    # process user commands: loop until told to quit
     while command[0] != 'Q' and command[0] != 'QUIT':
         command_str = input('enter a command\n>>')
         command = command_str.upper().split(' ')
+        # print command
         if command[0] == 'P' or command[0] == 'PRINT':
             if (len(command) == 2) and (command[1] in VALID_COINS) :
                 print_coin_table(command[1], cur, con)
@@ -65,6 +68,7 @@ def process_user_commands(cur, con):
                 print_database(command[1].lower(), cur, con)
             else:
                 print("invalid print command")
+        # disposition command
         if command[0] == 'D' or command[0] == 'DISPOSITION':
             if (len(command) == 3) and command[1] in DISPOSITION_COMMANDS:
                 if command[2].replace('.','').isdigit():
@@ -73,11 +77,13 @@ def process_user_commands(cur, con):
                     query = cur.fetchall()
                     wallet = query[0][2]+ '_' + query[0][3][0:5]
                     if query[0][1] == None:
+                        # disposition wallet command
                         if command[1] == 'WALLET':
                             cur.execute("UPDATE wallets SET disposition = '%s' WHERE id = '%s';" %
                                         (query[0][2]+ '_' + query[0][3][0:5], command[2]))
                             con.commit()
                             print(wallet, command[1])
+                        # disposition purchase, disposition expense command
                         elif command[1] == 'PURCHASE' or command[1] == 'EXPENSE':
                             # copy disposition to row with matching id
                             cur.execute("UPDATE wallets SET disposition = '%s' WHERE id = '%s';" %
@@ -102,6 +108,7 @@ def process_user_commands(cur, con):
                             cur.execute(''' DROP TABLE _crypto ''')
                             con.commit()
                             print(command[1])
+                        # disposition donate command
                         elif command[1] == 'DONATE':
                             donate_coin =query[0][2] + '_DONATE'
                             add_column_if_not_in_table(donate_coin, cur, con)
@@ -192,7 +199,7 @@ def main(args):
         else:
             print("error in file list")
             exit(1)
-    # search blockchain data
+    # combine blockchain data from the different exchanges
     coin_tx_list = coinbase_data[0]
     coin_from_exchange = coinbase_data[1] + binance_wd_data[1]
     coin_to_exchange = coinbase_data[2] + binance_dep_data[1]
@@ -201,6 +208,7 @@ def main(args):
 
 
 
+    # search blockchain data
     create_wallet_table(cur, con, coin_tx_list, coin_from_exchange, coin_to_exchange)
     #process user inputs
     process_user_commands(cur, con)
