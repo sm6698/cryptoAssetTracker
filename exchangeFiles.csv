@@ -1,6 +1,6 @@
 # EXCHANGE_FILETYPES = [ 'COINBASE-COIN', 'COINBASE-GDAX', 'BINANCE-DEPOSIT', 'BINANCE-TRADEHISTORY', 'BINANCE-WITHDRAWAL']
-COINBASE-COIN, ./DatabaseSample/Coinbase-BTC-TransactionsReport.csv
-COINBASE-GDAX, ./DatabaseSample/Coinbase-GDAX-ExchangeReport.csv
-BINANCE-DEPOSIT, ./DatabaseSample/Binance-DepositHistory.xlsx
-BINANCE-WITHDRAWAL, ./DatabaseSample/Binance-WithdrawalHistory.xlsx
-BINANCE-TRADEHISTORY, ./DatabaseSample/Binance-TradeHistory.xlsx
+COINBASE-COIN, ./sampleDatabase/Coinbase-BTC-TransactionsReport.csv
+COINBASE-GDAX, ./sampleDatabase/Coinbase-GDAX-ExchangeReport.csv
+BINANCE-DEPOSIT, ./sampleDatabase/Binance-DepositHistory.xlsx
+BINANCE-WITHDRAWAL, ./sampleDatabase/Binance-WithdrawalHistory.xlsx
+BINANCE-TRADEHISTORY, ./sampleDatabase/Binance-TradeHistory.xlsx
