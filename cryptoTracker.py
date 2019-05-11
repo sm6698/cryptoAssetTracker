@@ -1,11 +1,10 @@
-import sys
 import sqlite3
 from pathlib import Path
-from cryptoTrackerEth import *
-from cryptoTrackerBtc import *
-from cryptoTrackerCoinbase import *
-from cryptoTrackerBinance import *
-from cryptoTrackerUtil import *
+
+from modules.cryptoTrackerEth import *
+from modules.cryptoTrackerBtc import *
+from modules.cryptoTrackerCoinbase import *
+from modules.cryptoTrackerBinance import *
 
 # Static Constants
 # time difference in Coinbase Report
