@@ -121,9 +121,12 @@ def process_user_commands(cur, con):
                             # copy item from wallet to donate column
                             cur.execute("UPDATE crypto SET %s = (%s - %s) WHERE %s IS NOT NULL;" %
                                         (donate_coin,wallet,'fee',wallet))
+                            # set fee to null to row with matching id
+                            cur.execute("UPDATE crypto SET fee = NULL WHERE tx_id = '%s';" %
+                                        (query[0][4]))
                             header = cur.execute("PRAGMA table_info(crypto)").fetchall()
                             header_string = ''
-                            # remove column with wallet name from crypto table
+                            # remove column with wallet name from crypto table (rename, copy, delete)
                             for label in header:
                                 if label[1] != wallet:
                                     header_string = header_string + label[1] + ','
@@ -137,6 +140,7 @@ def process_user_commands(cur, con):
                             # delete old table
                             cur.execute(''' DROP TABLE _crypto ''')
                             con.commit()
+                    else:
                         print ("line already has a disposition")
                 else:
                     print ("invalid disposition item")
